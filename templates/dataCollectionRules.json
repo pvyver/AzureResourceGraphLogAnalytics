@@ -1,0 +1,149 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "dataCollectionRuleName": {
+            "type": "string",
+            "metadata": {
+                "description": "Specifies the name of the Data Collection Rule to create."
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "westeurope",
+            "allowedValues": [
+                "westus2",
+                "eastus2",
+                "eastus2euap",
+                "westeurope"
+            ],
+            "metadata": {
+                "description": "Specifies the location in which to create the Data Collection Rule."
+            }
+        },
+        "workspaceResourceId": {
+            "type": "string",
+            "metadata": {
+                "description": "Specifies the Azure resource ID of the Log Analytics workspace to use."
+            }
+        },
+        "endpointResourceId": {
+            "type": "string",
+            "metadata": {
+                "description": "Specifies the Azure resource ID of the Data Collection Endpoint to use."
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Insights/dataCollectionRules",
+            "name": "[parameters('dataCollectionRuleName')]",
+            "location": "[parameters('location')]",
+            "apiVersion": "2021-09-01-preview",
+            "properties": {
+                "dataCollectionEndpointId": "[parameters('endpointResourceId')]",
+                "streamDeclarations": {
+                    "Custom-Resources_CL": {
+                        "columns": [
+                            {
+                                "name": "id",
+                                "type": "string"
+                            },
+                            {
+                                "name": "name",
+                                "type": "string"
+                            },
+                            {
+                                "name": "type",
+                                "type": "string"
+                            },
+                            {
+                                "name": "tenantId",
+                                "type": "string"
+                            },
+                            {
+                                "name": "kind",
+                                "type": "dynamic"
+                            },
+                            {
+                                "name": "location",
+                                "type": "dynamic"
+                            },
+                            {
+                                "name": "resourceGroup",
+                                "type": "dynamic"
+                            },
+                            {
+                                "name": "subscriptionId",
+                                "type": "string"
+                            },
+                            {
+                                "name": "managedBy",
+                                "type": "dynamic"
+                            },
+                            {
+                                "name": "sku",
+                                "type": "dynamic"
+                            },
+                            {
+                                "name": "plan",
+                                "type": "dynamic"
+                            },
+                            {
+                                "name": "properties",
+                                "type": "dynamic"
+                            },
+                            {
+                                "name": "tags",
+                                "type": "dynamic"
+                            },
+                            {
+                                "name": "identity",
+                                "type": "dynamic"
+                            },
+                            {
+                                "name": "zones",
+                                "type": "dynamic"
+                            },
+                            {
+                                "name": "extendedLocation",
+                                "type": "dynamic"
+                            }
+                        ]
+                    }
+                },
+                "destinations": {
+                    "logAnalytics": [
+                        {
+                            "workspaceResourceId": "[parameters('workspaceResourceId')]",
+                            "name": "myworkspace"
+                        }
+                    ]
+                },
+                "dataFlows": [
+                    {
+                        "streams": [
+                            "Custom-Resources_CL"
+                        ],
+                        "destinations": [
+                            "myworkspace"
+                        ],
+                        "transformKql": "source 
+                        | extend TimeGenerated=now() 
+                        | extend resourceType=[\"type\"]
+                        | extend resourceId=id
+                        | extend resourceTenantId=tenantId
+                        | extend resourceKind=[\"kind\"]",
+                        "outputStream": "Custom-Resources_CL"
+                    }
+                ]
+            }
+        }
+    ],
+    "outputs": {
+        "dataCollectionRuleId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Insights/dataCollectionRules', parameters('dataCollectionRuleName'))]"
+        }
+    }
+}

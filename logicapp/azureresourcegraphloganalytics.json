@@ -1,0 +1,112 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "HTTP_-_Get_Resource_Graph_Resources": {
+                "inputs": {
+                    "authentication": {
+                        "audience": "https://management.azure.com",
+                        "identity": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/alz-logging/providers/Microsoft.ManagedIdentity/userAssignedIdentities/mi-resourcegraphtolog",
+                        "type": "ManagedServiceIdentity"
+                    },
+                    "body": {
+                        "query": "Resources"
+                    },
+                    "headers": {
+                        "  Content-Type": "application/json"
+                    },
+                    "method": "POST",
+                    "uri": "https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01"
+                },
+                "runAfter": {
+                    "Initialize_variable_-_CustomTableName": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "trackedProperties": {},
+                "type": "Http"
+            },
+            "HTTP_-_Post_-_Resources_to_Data_Collection_Endpoint": {
+                "inputs": {
+                    "authentication": {
+                        "audience": "https://monitor.azure.com",
+                        "identity": "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourcegroups/alz-logging/providers/Microsoft.ManagedIdentity/userAssignedIdentities/mi-resourcegraphtolog",
+                        "type": "ManagedServiceIdentity"
+                    },
+                    "body": "@body('HTTP_-_Get_Resource_Graph_Resources').data",
+                    "headers": {
+                        "content-type": "application/json"
+                    },
+                    "method": "POST",
+                    "uri": "@concat(variables('DceURI'),'/dataCollectionRules/',variables('DcrImmutableId'),'/streams/Custom-',variables('CustomTableName'),'?api-version=2021-11-01-preview')"
+                },
+                "runAfter": {
+                    "HTTP_-_Get_Resource_Graph_Resources": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Http"
+            },
+            "Initialize_variable_-_CustomTableName": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "CustomTableName",
+                            "type": "string",
+                            "value": "Resources_CL"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_variable_-_DcrImmutableId": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_-_DceURI": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "DceURI",
+                            "type": "string",
+                            "value": "https://yourendpoint.ingest.monitor.azure.com"
+                        }
+                    ]
+                },
+                "runAfter": {},
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_-_DcrImmutableId": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "DcrImmutableId",
+                            "type": "string",
+                            "value": "yourdcrimmutableid"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_variable_-_DceURI": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "type": "InitializeVariable"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "triggers": {
+            "Recurrence": {
+                "recurrence": {
+                    "frequency": "Minute",
+                    "interval": 15,
+                    "timeZone": "Romance Standard Time"
+                },
+                "type": "Recurrence"
+            }
+        }
+    },
+    "kind": "Stateful"
+}

@@ -1,0 +1,78 @@
+{
+    "properties": {
+        "schema": {
+            "name": "Resources_CL",
+            "columns": [
+                {
+                    "name": "TimeGenerated",
+                    "type": "datetime",
+                    "description": "The time at which the data was generated"
+                },
+                {
+                    "name": "extendedLocation",
+                    "type": "dynamic"
+                },
+                {
+                    "name": "identity",
+                    "type": "dynamic"
+                },
+                {
+                    "name": "location",
+                    "type": "dynamic"
+                },
+                {
+                    "name": "managedBy",
+                    "type": "dynamic"
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "plan",
+                    "type": "dynamic"
+                },
+                {
+                    "name": "properties",
+                    "type": "dynamic"
+                },
+                {
+                    "name": "resourceGroup",
+                    "type": "dynamic"
+                },
+                {
+                    "name": "resourceId",
+                    "type": "string"
+                },
+                {
+                    "name": "resourceKind",
+                    "type": "dynamic"
+                },
+                {
+                    "name": "resourceTenantId",
+                    "type": "string"
+                },
+                {
+                    "name": "resourceType",
+                    "type": "string"
+                },
+                {
+                    "name": "sku",
+                    "type": "dynamic"
+                },
+                {
+                    "name": "subscriptionId",
+                    "type": "string"
+                },
+                {
+                    "name": "tags",
+                    "type": "dynamic"
+                },
+                {
+                    "name": "zones",
+                    "type": "dynamic"
+                }
+            ]
+        }
+    }
+}
